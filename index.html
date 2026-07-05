@@ -508,22 +508,22 @@
 
 <script>
   const screens = [
-    ["s01","01 Welcome","", "<b>Welcome (unchanged).</b> Value prop already leads with 'you only pay for leads you want' — the redesign makes the rest of the flow keep that promise."],
-    ["s02","02 Phone","", "<b>Phone (unchanged, flagged).</b> Double verification (phone AND email) before any value is a suspected leak, but setup steps emit no events today, so we can't measure it. Ship instrumentation first; don't redesign blind. Out of scope for this build."],
-    ["s03","03 SMS code","", "<b>SMS verification (unchanged).</b> Same note as phone — instrument, then decide."],
-    ["s04","04 Email","", "<b>Email (unchanged, flagged).</b> Second identity check in a row. Candidate for deferral (verify email async, or at first receipt) pending funnel data."],
-    ["s05","05 Check email","", "<b>Email link (unchanged).</b> App-exit moment — classic drop-off risk. Another reason step-level events matter."],
-    ["s06","06 Confirmed","", "<b>Email confirmed (unchanged).</b> Return point after the app exit."],
-    ["s07","07 Links","", "<b>Links (unchanged).</b> Low-friction, high-value step — powers the auto-built profile."],
-    ["s08","08 Building","", "<b>Profile build (unchanged).</b> Moment of delight; no changes."],
-    ["s09","09 Profile","", "<b>Profile review (unchanged).</b> One note for Matching: this shows external ratings (Yelp 4.9), yet the match algorithm treats this Pro as unrated — the cold-start problem. Escalated separately."],
+    ["s01","01 Welcome","", ""],
+    ["s02","02 Phone","", ""],
+    ["s03","03 SMS code","", ""],
+    ["s04","04 Email","", ""],
+    ["s05","05 Check email","", ""],
+    ["s06","06 Confirmed","", ""],
+    ["s07","07 Links","", ""],
+    ["s08","08 Building","", ""],
+    ["s09","09 Profile","", ""],
     ["s10","10 Budget","chg", "<b>Budget — CHANGED.</b> The current screen already says $10/lead; the redesign makes cost the centerpiece: cap, per-lead price, 'declining is free', and 'charged today: $0' in one card. Drag the slider — everything downstream updates. This is the disclosure that makes later consent informed and kills the surprise (Gary: 'just warn me')."],
     ["s11","11 Pro terms","new", "<b>Agreement — NEW POSITION.</b> The v4 contractor agreement moves from first-match (where it walls off the lead and 35% of receivers stall) to setup, immediately after cost disclosure. Plain-language summary, full text behind a disclosure. Pre-Q4 data: 90–96% completed this step at setup — it doesn't leak. Needs legal signoff; fallback is checkbox-at-gate."],
-    ["s12","12 Payment","", "<b>Payment (unchanged).</b> Existing copy already says 'nothing is charged today' and 'not charged until you accept your first lead' — it works as-is after the agreement step. Card entry stays in setup; it's the commitment filter that keeps post-gate quality."],
-    ["s14","13 First match","", "<b>Leads home (unchanged).</b> Setup ends here; first lead lands 8 minutes in. The difference is what happens next: no legal wall. (Note: the 'profile live' milestone event still fires at end of setup — the metric fix doesn't need its own screen.)"],
+    ["s12","12 Payment","", ""],
+    ["s14","13 First match","", ""],
     ["s15","14 Lead details","chg", "<b>Lead details — CHANGED, and this is the gate now.</b> Full job, photos, budget, timing visible before any money decision; only contact info is locked. The current flow's agreement wall after 'Accept' is deleted (terms moved to setup). Its charge-confirmation role is preserved in the control itself: slide-to-accept with price and card on the track — deliberate enough to prevent accidental charges, no extra screen. Try dragging it."],
-    ["s17","15 Unlocked","", "<b>Unlocked (unchanged).</b> Contact details + receipt + speed nudge ('fast replies win the job' — matches interview evidence that speed wins)."],
-    ["s18","16 Working app","", "<b>Steady state (unchanged).</b> Subsequent accepts are the same slide from anywhere. Leads never pile up behind an unsigned agreement."]
+    ["s17","15 Unlocked","", ""],
+    ["s18","16 Working app","", ""]
   ];
   const nav = document.getElementById("nav");
   const annotation = document.getElementById("annotation");
@@ -542,6 +542,7 @@
     document.querySelectorAll(".flow-nav button").forEach(b => b.classList.remove("active"));
     document.getElementById("nav-"+id).classList.add("active");
     annotation.innerHTML = screens[current][3];
+    annotation.style.display = screens[current][3] ? "" : "none";
   }
   function step(d) { go(screens[Math.min(screens.length-1, Math.max(0, current+d))][0]); }
   document.addEventListener("keydown", e => {
