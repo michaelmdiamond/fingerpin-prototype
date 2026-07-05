@@ -33,6 +33,11 @@
   .flow-nav button .tag { font-size: 9px; font-weight: 800; letter-spacing: .04em; margin-left: 4px; }
   .tag.new { color: var(--green); } .tag.chg { color: var(--orange); }
   .flow-nav button.active .tag.new { color: #8fd9be; } .flow-nav button.active .tag.chg { color: #ffb39f; }
+  .modebar { display: flex; gap: 0; margin-bottom: 14px; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--card); }
+  .modebar button { font: inherit; font-size: 12.5px; font-weight: 700; padding: 8px 18px; border: none; background: transparent; color: var(--ink-2); cursor: pointer; }
+  .modebar button.active { background: var(--dark); color: #fff; }
+  body.control .screenbadge { display: none; }
+  body.control .legend { visibility: hidden; }
   .legend { font-size: 11.5px; color: var(--ink-2); margin-bottom: 18px; }
   .legend b.n { color: var(--green); } .legend b.c { color: var(--orange); }
 
@@ -223,6 +228,10 @@
 
 <div class="proto-title">FingerPin: proposed new Pro onboarding flow</div>
 <div class="proto-sub">Prototype accompanying the onboarding case · use ← → keys or the pills to move through the flow · badges show what changes vs the current product</div>
+<div class="modebar">
+  <button id="mode-c" onclick="setMode('c')">Control &middot; current flow</button>
+  <button id="mode-t" class="active" onclick="setMode('t')">Test &middot; proposed flow</button>
+</div>
 <nav class="flow-nav" id="nav"></nav>
 <div class="legend">Badges: unchanged from current flow · <b class="c">CHANGED</b> · <b class="n">NEW</b></div>
 
@@ -361,7 +370,7 @@
   <div class="ftext">Family-run handyman shop serving the Bay Area for 12 years. We mount, patch, assemble, and fix — licensed, insured, and obsessive about a clean job site.</div>
   <div class="flabel">Specialties</div>
   <div class="chips" style="margin-top:2px;"><div class="chip on">✓ Handyman</div><div class="chip on">✓ Carpentry</div><div class="chip">+ Plumbing</div><div class="chip">+ Painting</div><div class="chip">+ Flooring</div></div>
-  <button class="cta" onclick="go('s10')">Looks good — continue →</button>
+  <button class="cta" onclick="goBudget()">Looks good — continue →</button>
 </section>
 
 <!-- 10 BUDGET + COST (CHANGED) -->
@@ -427,7 +436,7 @@
   <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
   <div class="appbar-app"><h3>Leads</h3><div class="capmini">$0 <small>/ $<span id="capNum3">100</span></small><span class="sub">0 leads this month</span></div></div>
   <p style="font-size:13px; font-weight:700; margin-bottom:10px;" id="leadCount"><span class="dot"></span>1 new lead near you</p>
-  <div class="leadcard hot" onclick="go('s15')" style="cursor:pointer;" id="leadCard">
+  <div class="leadcard hot" onclick="goLead()" style="cursor:pointer;" id="leadCard">
     <div class="lc-top"><span class="lc-pill">TV Mounting</span><span class="lc-pill gray">Shelving</span><span class="lc-time">8 min ago</span></div>
     <div class="lc-title">Mount a 65" TV + hang 3 floating shelves</div>
     <div class="lc-desc">Living room, drywall with studs. I already have the TV mount and shelves — just need everything…</div>
@@ -499,6 +508,66 @@
   <div class="tabbar"><div class="on"><span>💬</span>Leads</div><div><span>✉️</span>Messages</div><div><span>👤</span>Account</div></div>
 </section>
 
+
+<!-- C10 BUDGET (control, per original PDF) -->
+<section class="screen" id="c10">
+  <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+  <div class="topnav"><div class="backbtn">←</div><div class="steps"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i></i><i></i></div></div>
+  <h2>Set your monthly budget</h2>
+  <p class="lede" style="margin-bottom:12px;">This is the most you'll spend per month. Slide it anywhere. You can change it whenever you like.</p>
+  <div class="costcard">
+    <div class="cc-cap-label">MONTHLY BUDGET CAP</div>
+    <div class="cc-cap">$100<small>/mo</small></div>
+    <div class="cc-chip">💬 At $100/mo you'll get up to ~10 leads</div>
+  </div>
+  <div class="slider-wrap"><input type="range" min="10" max="1000" step="10" value="100" aria-label="Monthly budget cap"></div>
+  <div class="minmax"><span>$10</span><span>$1000/mo</span></div>
+  <div class="benefit"><div class="bi">$</div><div><div class="bt">$10 per lead</div><div class="bd">A flat rate. No bidding, no surge pricing.</div></div></div>
+  <div class="benefit"><div class="bi">✓</div><div><div class="bt">You only pay for leads we send</div><div class="bd">If we can't match you this month, you pay $0.</div></div></div>
+  <button class="cta" onclick="go('s12')">Continue →</button>
+</section>
+
+<!-- C13 LEAD DETAILS (control) -->
+<section class="screen" id="c13">
+  <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+  <div class="topnav"><div class="backbtn" onclick="go('s14')" style="cursor:pointer;">←</div><b style="font-size:16px;">Lead details</b></div>
+  <div class="lc-top" style="margin-bottom:6px;"><span class="lc-pill">TV Mounting</span><span class="lc-pill gray">Shelving</span></div>
+  <h2 style="font-size:21px;">Mount a 65" TV + hang 3 floating shelves</h2>
+  <p class="hint" style="margin-bottom:4px;">📍 Noe Valley, SF · 🕐 8 min ago</p>
+  <div class="photos"><div>📷</div><div>📷</div><div>📷</div></div>
+  <div class="jobbox">
+    <div class="jl">THE JOB</div>
+    <p>Living room, drywall with studs. I already have the TV mount and shelves — just need everything installed level with the cords hidden if possible. Hoping to get it done this week.</p>
+    <div class="jobfacts"><div class="f"><small>Budget</small><b>$150–$300</b></div><div class="f"><small>Timing</small><b>This week</b></div></div>
+  </div>
+  <div class="jobbox">
+    <div class="jl">HOMEOWNER</div>
+    <div style="display:flex; align-items:center; gap:11px;">
+      <div class="avatar" style="background:var(--green-soft); color:var(--green);">PN</div>
+      <div><b style="font-size:15px;">Priya</b><div class="blur" style="font-size:13px; color:var(--ink-2);">415-555-0143 · priya@gmail.com</div></div>
+    </div>
+    <div class="lockrow">🔒 Accept this lead to unlock contact details.</div>
+  </div>
+  <button class="cta" onclick="go('c14')">Accept lead · $10 →</button>
+  <p class="hint" style="text-align:center;">You're charged $10 only when you accept.</p>
+</section>
+
+<!-- C14 AGREEMENT WALL (control) -->
+<section class="screen" id="c14">
+  <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+  <div class="topnav"><div class="backbtn" onclick="go('c13')" style="cursor:pointer;">←</div><b style="font-size:16px;">Contractor Agreement</b></div>
+  <div class="stepicon" style="background:var(--dark);">🛡️</div>
+  <h2>One thing before your first lead</h2>
+  <p class="lede" style="margin-bottom:8px;">This is a one-time agreement. Review and accept it to start receiving leads on FingerPin.</p>
+  <div class="agree-item"><span class="ck">·</span><div><div class="at">Per-lead fee</div><div class="ad">You agree to pay $10 for each lead you choose to accept. You are never charged for leads you decline.</div></div></div>
+  <div class="agree-item"><span class="ck">·</span><div><div class="at">Monthly cap</div><div class="ad">We will not charge you more than your monthly budget cap of $100. Change it anytime in your account.</div></div></div>
+  <div class="agree-item"><span class="ck">·</span><div><div class="at">Independent contractor</div><div class="ad">You operate as an independent business. FingerPin is a lead-generation service and is not a party to any contract you form with a homeowner.</div></div></div>
+  <div class="agree-item"><span class="ck">·</span><div><div class="at">Honest representation</div><div class="ad">You confirm you're licensed and insured where required for the work you accept, and that your profile is accurate.</div></div></div>
+  <div class="agree-item"><span class="ck">·</span><div><div class="at">Fair conduct</div><div class="ad">You'll respond to homeowners promptly and honestly.</div></div></div>
+  <label style="display:flex; gap:10px; align-items:flex-start; font-size:13.5px; margin:14px 0 0; cursor:pointer;"><input type="checkbox" style="margin-top:3px;"> I've read and agree to the FingerPin Pro Contractor Agreement.</label>
+  <button class="cta" onclick="go('s17')">Agree &amp; accept lead</button>
+</section>
+
 </div>
 <button class="arrowbtn" onclick="step(1)">→</button>
 </div>
@@ -506,7 +575,12 @@
 <div class="annotation" id="annotation"></div>
 
 <script>
-  const screens = [
+  const NOTE_BUDGET = "<b>Budget (changed).</b> We already mention $10/lead on this screen, but now the cost is the centerpiece: the cap, the per lead price, 'declining is free', and 'charged today: $0' all in one card. Drag the slider and everything downstream updates. The user interviews suggest the damage was the surprise, not the price (Gary: 'just warn me').";
+  const NOTE_TERMS = "<b>Pro terms (new position).</b> The agreement moves from first match, where it currently walls off the lead and 35% of receiving pros stall out, to setup right after the cost card. Plain language summary up top, full text one tap away. Before Q4, 90-96% of pros signed this during setup, so we know the step itself doesn't leak. Needs legal signoff. If legal says no, the fallback is a checkbox at the accept screen.";
+  const NOTE_LEAD = "<b>Lead details (changed). This is the gate now.</b> The pro sees the whole job (photos, budget, timing) before any money decision. Only the homeowner's contact info stays locked. The old agreement wall after 'Accept' is gone since the terms moved to setup. Accepting is now a slide with the price and card right on it, deliberate enough that you can't do it by accident. Try dragging it.";
+  const NOTE_WALL = "<b>The wall (control only).</b> In the current flow, tapping Accept lands here: sign the agreement and commit to the $10 on the same screen, right before the first lead. 35% of lead-receiving new pros never get past this point.";
+
+  const SHARED = [
     ["s01","01 Welcome","", ""],
     ["s02","02 Phone","", ""],
     ["s03","03 SMS code","", ""],
@@ -515,35 +589,68 @@
     ["s06","06 Confirmed","", ""],
     ["s07","07 Links","", ""],
     ["s08","08 Building","", ""],
-    ["s09","09 Profile","", ""],
-    ["s10","10 Budget","chg", "<b>Budget (changed).</b> We already mention $10/lead on this screen, but now the cost is the centerpiece: the cap, the per lead price, 'declining is free', and 'charged today: $0' all in one card. Drag the slider and everything downstream updates. The user interviews suggest the damage was the surprise, not the price (Gary: 'just warn me')."],
-    ["s11","11 Pro terms","new", "<b>Pro terms (new position).</b> The agreement moves from first match, where it currently walls off the lead and 35% of receiving pros stall out, to setup right after the cost card. Plain language summary up top, full text one tap away. Before Q4, 90-96% of pros signed this during setup, so we know the step itself doesn't leak. Needs legal signoff. If legal says no, the fallback is a checkbox at the accept screen."],
+    ["s09","09 Profile","", ""]
+  ];
+  const T_LIST = SHARED.concat([
+    ["s10","10 Budget","chg", NOTE_BUDGET],
+    ["s11","11 Pro terms","new", NOTE_TERMS],
     ["s12","12 Payment","", ""],
     ["s14","13 First match","", ""],
-    ["s15","14 Lead details","chg", "<b>Lead details (changed). This is the gate now.</b> The pro sees the whole job (photos, budget, timing) before any money decision. Only the homeowner's contact info stays locked. The old agreement wall after 'Accept' is gone since the terms moved to setup. Accepting is now a slide with the price and card right on it, deliberate enough that you can't do it by accident. Try dragging it."],
+    ["s15","14 Lead details","chg", NOTE_LEAD],
     ["s17","15 Unlocked","", ""],
     ["s18","16 Working app","", ""]
-  ];
+  ]);
+  const C_LIST = SHARED.concat([
+    ["c10","10 Budget","", ""],
+    ["s12","11 Payment","", ""],
+    ["s14","12 First match","", ""],
+    ["c13","13 Lead details","", ""],
+    ["c14","14 Agreement wall","", NOTE_WALL],
+    ["s17","15 Unlocked","", ""],
+    ["s18","16 Working app","", ""]
+  ]);
+
   const nav = document.getElementById("nav");
   const annotation = document.getElementById("annotation");
+  let mode = "t";
+  let list = T_LIST;
   let current = 0;
-  screens.forEach(([id,label,tag],ix) => {
-    const b = document.createElement("button");
-    b.id = "nav-"+id;
-    b.innerHTML = label + (tag==="new" ? ' <span class="tag new">NEW</span>' : tag==="chg" ? ' <span class="tag chg">CHG</span>' : '');
-    b.onclick = () => go(id);
-    nav.appendChild(b);
-  });
+
+  function buildNav() {
+    nav.innerHTML = "";
+    list.forEach(([id,label,tag]) => {
+      const b = document.createElement("button");
+      b.id = "nav-"+id;
+      b.innerHTML = label + (tag==="new" ? ' <span class="tag new">NEW</span>' : tag==="chg" ? ' <span class="tag chg">CHG</span>' : '');
+      b.onclick = () => go(id);
+      nav.appendChild(b);
+    });
+  }
   function go(id) {
-    current = screens.findIndex(s => s[0]===id);
+    current = list.findIndex(s => s[0]===id);
+    if (current < 0) { current = 0; id = list[0][0]; }
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     document.getElementById(id).classList.add("active");
     document.querySelectorAll(".flow-nav button").forEach(b => b.classList.remove("active"));
     document.getElementById("nav-"+id).classList.add("active");
-    annotation.innerHTML = screens[current][3];
-    annotation.style.display = screens[current][3] ? "" : "none";
+    annotation.innerHTML = list[current][3];
+    annotation.style.display = list[current][3] ? "" : "none";
   }
-  function step(d) { go(screens[Math.min(screens.length-1, Math.max(0, current+d))][0]); }
+  function step(d) { go(list[Math.min(list.length-1, Math.max(0, current+d))][0]); }
+  function setMode(m) {
+    if (m === mode) return;
+    const pos = current;
+    mode = m;
+    list = (m === "t") ? T_LIST : C_LIST;
+    document.body.classList.toggle("control", m === "c");
+    document.getElementById("mode-t").classList.toggle("active", m === "t");
+    document.getElementById("mode-c").classList.toggle("active", m === "c");
+    buildNav();
+    go(list[Math.min(pos, list.length-1)][0]);
+  }
+  function goBudget() { go(mode === "t" ? "s10" : "c10"); }
+  function goLead() { go(mode === "t" ? "s15" : "c13"); }
+  buildNav();
   document.addEventListener("keydown", e => {
     if (e.key==="ArrowRight") step(1);
     if (e.key==="ArrowLeft") step(-1);
