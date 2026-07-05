@@ -418,7 +418,7 @@
   </div>
   <div class="field"><div><span class="fl">BILLING ZIP</span>94110</div></div>
   <p class="hint">🔒 Encrypted and stored securely. <b>You're not charged until you accept your first lead.</b></p>
-  <button class="cta dark" onclick="resetLead();go('s14')">🔒 Save card &amp; finish setup</button>
+  <button class="cta dark" onclick="go('s14')">🔒 Save card &amp; finish setup</button>
 </section>
 
 <!-- 14 LEADS HOME (as-is) -->
@@ -464,8 +464,7 @@
     <div class="slide-label" id="slideLabel">Slide to accept · $10 · VISA ···· 4242</div>
     <div class="slide-knob" id="slideKnob">→</div>
   </div>
-  <button class="cta ghost" style="width:100%;" onclick="passLead()">Pass (free)</button>
-  <p class="hint" style="text-align:center;">You're charged only when you slide. Passing is always free.</p>
+  <p class="hint" style="text-align:center;">You're only charged when you slide to accept.</p>
 </section>
 
 <!-- 17 UNLOCKED (as-is) -->
@@ -556,18 +555,6 @@
     document.getElementById("leadNum").textContent = Math.floor(cap/10);
     ["capNum2","capNum3","capNum5"].forEach(i => document.getElementById(i).textContent = cap);
   });
-
-  function passLead() {
-    document.getElementById("leadCard").style.display = "none";
-    document.getElementById("leadCount").innerHTML = "No new leads right now";
-    document.getElementById("leadHint").innerHTML = "You passed on the TV mounting job. No charge. We'll text you when the next match lands.";
-    go("s14");
-  }
-  function resetLead() {
-    document.getElementById("leadCard").style.display = "";
-    document.getElementById("leadCount").innerHTML = '<span class="dot"></span>1 new lead near you';
-    document.getElementById("leadHint").innerHTML = "That was fast. Tap the lead to see the job.";
-  }
 
   const knob = document.getElementById("slideKnob");
   const track = document.getElementById("slideTrack");
