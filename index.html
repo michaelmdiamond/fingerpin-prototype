@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FingerPin · New Pro flow — full prototype</title>
+<title>FingerPin Pro onboarding prototype</title>
 <style>
   :root {
     --orange: #F4502C; --orange-dark: #D63E1D; --orange-soft: #FDE9E3;
@@ -221,7 +221,7 @@
 </head>
 <body>
 
-<div class="proto-title">FingerPin — proposed new Pro onboarding flow</div>
+<div class="proto-title">FingerPin: proposed new Pro onboarding flow</div>
 <div class="proto-sub">Prototype accompanying the onboarding case · use ← → keys or the pills to move through the flow · badges show what changes vs the current product</div>
 <nav class="flow-nav" id="nav"></nav>
 <div class="legend">Badges: unchanged from current flow · <b class="c">CHANGED</b> · <b class="n">NEW</b></div>
@@ -457,14 +457,14 @@
       <div class="avatar" style="background:var(--green-soft); color:var(--green);">PN</div>
       <div><b style="font-size:15px;">Priya</b><div class="blur" style="font-size:13px; color:var(--ink-2);">415-555-0143 · priya@gmail.com</div></div>
     </div>
-    <div class="lockrow">🔒 Accept to unlock contact details — $10, this lead only.</div>
+    <div class="lockrow">🔒 Accept to unlock contact details. $10, this lead only.</div>
   </div>
   <div class="slide-accept" id="slideTrack">
     <div class="slide-fill" id="slideFill"></div>
     <div class="slide-label" id="slideLabel">Slide to accept · $10 · VISA ···· 4242</div>
     <div class="slide-knob" id="slideKnob">→</div>
   </div>
-  <button class="cta ghost" style="width:100%;" onclick="passLead()">Pass — free</button>
+  <button class="cta ghost" style="width:100%;" onclick="passLead()">Pass (free)</button>
   <p class="hint" style="text-align:center;">You're charged only when you slide. Passing is always free.</p>
 </section>
 
@@ -496,7 +496,7 @@
   <div class="leadcard hot"><div class="lc-top"><span class="lc-pill">Plumbing</span><span class="lc-time">32 min ago</span></div><div class="lc-title" style="font-size:15px;">Fix a slow-draining kitchen sink</div><div class="lc-meta"><span>📍 Mission, SF</span><span><b>$80–$150</b></span></div></div>
   <div class="leadcard hot"><div class="lc-top"><span class="lc-pill">Drywall</span><span class="lc-time">1 hr ago</span></div><div class="lc-title" style="font-size:15px;">Patch &amp; repaint two drywall holes</div><div class="lc-meta"><span>📍 Bernal Heights</span><span><b>$120–$220</b></span></div></div>
   <div class="leadcard" style="opacity:.75;"><div class="lc-top"><span class="lc-pill gray">TV Mounting</span><span class="lc-time">Accepted ✓</span></div><div class="lc-title" style="font-size:15px;">Mount a 65" TV + hang 3 floating shelves</div><div class="lc-meta"><span>📍 Noe Valley, SF</span><span><b>$150–$300</b></span></div></div>
-  <p class="hint" style="text-align:center; margin-top:12px;">Accepting from here is one tap — the terms were handled at setup.</p>
+  <p class="hint" style="text-align:center; margin-top:12px;">Accepting from here is one tap. The terms were already handled at setup.</p>
   <div class="tabbar"><div class="on"><span>💬</span>Leads</div><div><span>✉️</span>Messages</div><div><span>👤</span>Account</div></div>
 </section>
 
@@ -517,11 +517,11 @@
     ["s07","07 Links","", ""],
     ["s08","08 Building","", ""],
     ["s09","09 Profile","", ""],
-    ["s10","10 Budget","chg", "<b>Budget — CHANGED.</b> The current screen already says $10/lead; the redesign makes cost the centerpiece: cap, per-lead price, 'declining is free', and 'charged today: $0' in one card. Drag the slider — everything downstream updates. This is the disclosure that makes later consent informed and kills the surprise (Gary: 'just warn me')."],
-    ["s11","11 Pro terms","new", "<b>Agreement — NEW POSITION.</b> The v4 contractor agreement moves from first-match (where it walls off the lead and 35% of receivers stall) to setup, immediately after cost disclosure. Plain-language summary, full text behind a disclosure. Pre-Q4 data: 90–96% completed this step at setup — it doesn't leak. Needs legal signoff; fallback is checkbox-at-gate."],
+    ["s10","10 Budget","chg", "<b>Budget (changed).</b> We already mention $10/lead on this screen, but now the cost is the centerpiece: the cap, the per lead price, 'declining is free', and 'charged today: $0' all in one card. Drag the slider and everything downstream updates. The user interviews suggest the damage was the surprise, not the price (Gary: 'just warn me')."],
+    ["s11","11 Pro terms","new", "<b>Pro terms (new position).</b> The agreement moves from first match, where it currently walls off the lead and 35% of receiving pros stall out, to setup right after the cost card. Plain language summary up top, full text one tap away. Before Q4, 90-96% of pros signed this during setup, so we know the step itself doesn't leak. Needs legal signoff. If legal says no, the fallback is a checkbox at the accept screen."],
     ["s12","12 Payment","", ""],
     ["s14","13 First match","", ""],
-    ["s15","14 Lead details","chg", "<b>Lead details — CHANGED, and this is the gate now.</b> Full job, photos, budget, timing visible before any money decision; only contact info is locked. The current flow's agreement wall after 'Accept' is deleted (terms moved to setup). Its charge-confirmation role is preserved in the control itself: slide-to-accept with price and card on the track — deliberate enough to prevent accidental charges, no extra screen. Try dragging it."],
+    ["s15","14 Lead details","chg", "<b>Lead details (changed). This is the gate now.</b> The pro sees the whole job (photos, budget, timing) before any money decision. Only the homeowner's contact info stays locked. The old agreement wall after 'Accept' is gone since the terms moved to setup. Accepting is now a slide with the price and card right on it, deliberate enough that you can't do it by accident. Try dragging it."],
     ["s17","15 Unlocked","", ""],
     ["s18","16 Working app","", ""]
   ];
@@ -560,7 +560,7 @@
   function passLead() {
     document.getElementById("leadCard").style.display = "none";
     document.getElementById("leadCount").innerHTML = "No new leads right now";
-    document.getElementById("leadHint").innerHTML = "You passed on the TV mounting job — no charge. We'll text you when the next match lands.";
+    document.getElementById("leadHint").innerHTML = "You passed on the TV mounting job. No charge. We'll text you when the next match lands.";
     go("s14");
   }
   function resetLead() {
