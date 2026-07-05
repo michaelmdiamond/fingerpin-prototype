@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FingerPin · New Pro flow — full prototype</title>
+<style>
+  :root {
+    --orange: #F4502C; --orange-dark: #D63E1D; --orange-soft: #FDE9E3;
+    --cream: #F7F1E9; --card: #FFFDF9; --dark: #241D18; --dark-2: #3A3029;
+    --ink: #241D18; --ink-2: #7A6E64; --ink-3: #B0A69B;
+    --line: #EBE2D6; --green: #1E7A5A; --green-soft: #E2F0EA;
+    --amber: #B06E10; --amber-soft: #FBF0DC;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #EFE8DE; color: var(--ink);
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+    padding: 28px 16px 64px;
+  }
+  .proto-title { font-size: 15px; font-weight: 700; color: var(--dark); margin-bottom: 3px; }
+  .proto-sub { font-size: 13px; color: var(--ink-2); margin-bottom: 20px; }
+
+  .flow-nav { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; margin-bottom: 8px; max-width: 860px; }
+  .flow-nav button {
+    font: inherit; font-size: 11.5px; font-weight: 600; color: var(--ink-2);
+    background: var(--card); border: 1px solid var(--line); border-radius: 999px;
+    padding: 6px 11px; cursor: pointer; transition: all .12s;
+  }
+  .flow-nav button:hover { border-color: var(--orange); color: var(--orange); }
+  .flow-nav button.active { background: var(--dark); border-color: var(--dark); color: #fff; }
+  .flow-nav button .tag { font-size: 9px; font-weight: 800; letter-spacing: .04em; margin-left: 4px; }
+  .tag.new { color: var(--green); } .tag.chg { color: var(--orange); }
+  .flow-nav button.active .tag.new { color: #8fd9be; } .flow-nav button.active .tag.chg { color: #ffb39f; }
+  .legend { font-size: 11.5px; color: var(--ink-2); margin-bottom: 18px; }
+  .legend b.n { color: var(--green); } .legend b.c { color: var(--orange); }
+
+  .stage { display: flex; gap: 10px; align-items: center; }
+  .arrowbtn {
+    font: inherit; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line);
+    background: var(--card); color: var(--ink-2); cursor: pointer; font-size: 17px; flex: none;
+  }
+  .arrowbtn:hover { border-color: var(--orange); color: var(--orange); }
+
+  .phone {
+    width: 385px; max-width: calc(100vw - 130px); background: var(--cream);
+    border-radius: 32px; overflow: hidden; position: relative;
+    box-shadow: 0 30px 70px -28px rgba(36,29,24,.45), 0 3px 10px rgba(36,29,24,.08);
+    border: 6px solid var(--dark);
+  }
+  .statusbar { height: 38px; display: flex; align-items: center; justify-content: space-between; padding: 0 22px; font-size: 12.5px; font-weight: 700; color: var(--ink-2); }
+  .screen { display: none; padding: 0 22px 26px; min-height: 600px; position: relative; }
+  .screen.active { display: block; animation: fade .22s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .screen.dark { background: var(--dark); color: #F4EFE9; }
+  .screen.dark .statusbar { color: #a99e93; }
+
+  .topnav { display: flex; align-items: center; gap: 12px; padding: 8px 0 16px; }
+  .backbtn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); display: flex; align-items: center; justify-content: center; font-size: 15px; color: var(--ink); flex: none; }
+  .steps { display: flex; gap: 4px; flex: 1; }
+  .steps i { height: 3.5px; flex: 1; border-radius: 2px; background: #E2D8CA; }
+  .steps i.done { background: var(--orange); }
+
+  .stepicon { width: 46px; height: 46px; border-radius: 14px; background: var(--orange-soft); display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 16px; }
+  h2 { font-size: 25px; font-weight: 800; letter-spacing: -.5px; line-height: 1.12; margin-bottom: 8px; }
+  .screen.dark h2 { color: #fff; }
+  p.lede { font-size: 14px; color: var(--ink-2); line-height: 1.55; margin-bottom: 20px; }
+  .screen.dark p.lede { color: #BDB2A6; }
+
+  .field { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 14px 16px; font-size: 16.5px; font-weight: 600; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .field .fl { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; color: var(--ink-3); display: block; }
+  .field.ok { border-color: var(--green); }
+  .field .okmark { margin-left: auto; color: var(--green); font-weight: 800; }
+  .hint { font-size: 12.5px; color: var(--ink-3); line-height: 1.5; margin: 4px 2px 0; }
+
+  .otp { display: flex; gap: 8px; margin-bottom: 12px; }
+  .otp span { flex: 1; aspect-ratio: .8; border: 1.5px solid var(--line); background: var(--card); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; font-family: ui-monospace, monospace; }
+
+  .cta {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; font: inherit; font-size: 15.5px; font-weight: 700; padding: 16px;
+    border-radius: 999px; border: none; cursor: pointer;
+    background: var(--orange); color: #fff; transition: background .15s, transform .05s;
+    margin-top: 18px;
+  }
+  .cta:hover { background: var(--orange-dark); }
+  .cta:active { transform: scale(.985); }
+  .cta.dark { background: var(--dark); }
+  .cta.dark:hover { background: var(--dark-2); }
+  .cta.ghost { background: transparent; color: var(--ink-2); font-weight: 600; margin-top: 6px; padding: 12px; }
+  .cta.ghost:hover { background: rgba(0,0,0,.045); color: var(--ink); }
+  .screen.dark .cta.ghost { color: #BDB2A6; } .screen.dark .cta.ghost:hover { background: rgba(255,255,255,.07); color: #fff; }
+  .ctarow { display: flex; gap: 10px; margin-top: 18px; }
+  .ctarow .cta { margin-top: 0; flex: 1.7; }
+  .ctarow .cta.ghost { flex: 1; border: 1.5px solid var(--line); }
+
+  .costcard { background: var(--dark); color: #fff; border-radius: 20px; padding: 18px 20px; margin: 6px 0 14px; }
+  .costcard .cc-cap-label { font-size: 10.5px; font-weight: 700; letter-spacing: .1em; color: #A99E93; margin-bottom: 4px; }
+  .costcard .cc-cap { font-size: 40px; font-weight: 800; letter-spacing: -1px; }
+  .costcard .cc-cap small { font-size: 16px; font-weight: 600; color: #A99E93; }
+  .costcard .cc-chip { display: inline-block; background: rgba(255,255,255,.1); border-radius: 999px; font-size: 12px; font-weight: 600; padding: 6px 12px; margin-top: 10px; color: #E8DFD4; }
+  .costrows { border-top: 1px solid rgba(255,255,255,.12); margin-top: 14px; padding-top: 10px; }
+  .costrows .r { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; color: #CFC5B9; }
+  .costrows .r b { color: #fff; font-weight: 700; }
+
+  .benefit { display: flex; gap: 12px; align-items: flex-start; padding: 9px 0; }
+  .benefit .bi { width: 34px; height: 34px; border-radius: 10px; background: var(--green-soft); color: var(--green); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; flex: none; }
+  .benefit .bt { font-size: 14px; font-weight: 700; }
+  .benefit .bd { font-size: 12.5px; color: var(--ink-2); line-height: 1.45; }
+
+  .slider-wrap { display: flex; align-items: center; gap: 12px; margin: 4px 0 2px; }
+  input[type=range] { flex: 1; accent-color: var(--orange); }
+  .minmax { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--ink-3); font-family: ui-monospace, monospace; margin-bottom: 10px; }
+
+  .agree-item { display: flex; gap: 11px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .agree-item:last-of-type { border-bottom: none; }
+  .agree-item .ck { color: var(--green); font-weight: 800; font-size: 15px; margin-top: 1px; }
+  .agree-item .at { font-size: 14px; font-weight: 700; }
+  .agree-item .ad { font-size: 12.5px; color: var(--ink-2); line-height: 1.45; }
+  details.legal { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 13px 16px; margin: 14px 0 4px; }
+  details.legal summary { font-size: 13.5px; font-weight: 700; color: var(--orange); cursor: pointer; list-style: none; }
+  details.legal .lb { font-size: 12px; color: var(--ink-2); line-height: 1.6; max-height: 120px; overflow-y: auto; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+
+  .linkfield { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 11px 14px; margin-bottom: 9px; }
+  .linkfield .lf-tag { font-size: 9.5px; font-weight: 800; letter-spacing: .08em; color: var(--ink-3); }
+  .linkfield .lf-val { font-size: 14.5px; font-weight: 600; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .chip { font-size: 12.5px; font-weight: 600; border: 1.5px solid var(--line); background: var(--card); border-radius: 999px; padding: 7px 13px; color: var(--ink-2); }
+  .chip.on { background: var(--dark); border-color: var(--dark); color: #fff; }
+
+  .buildrow { display: flex; align-items: center; gap: 13px; padding: 11px 0; font-size: 14.5px; font-weight: 600; color: #E8DFD4; }
+  .buildrow .bc { width: 26px; height: 26px; border-radius: 50%; background: var(--green); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex: none; }
+
+  .profcard { background: var(--card); border: 1.5px solid var(--line); border-radius: 16px; padding: 14px 16px; display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .avatar { width: 46px; height: 46px; border-radius: 50%; background: var(--orange-soft); color: var(--orange-dark); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; flex: none; }
+  .stars { color: #E8A33D; font-size: 13px; letter-spacing: 1px; }
+  .flabel { font-size: 12px; font-weight: 700; color: var(--ink-2); margin: 12px 2px 6px; }
+  .ftext { background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 15px; font-size: 13.5px; line-height: 1.5; color: var(--ink); }
+
+  .appbar-app { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0 14px; }
+  .appbar-app h3 { font-size: 24px; font-weight: 800; letter-spacing: -.5px; }
+  .capmini { text-align: right; font-size: 15px; font-weight: 800; font-family: ui-monospace, monospace; }
+  .capmini small { color: var(--ink-3); font-weight: 600; }
+  .capmini .sub { display: block; font-size: 10.5px; color: var(--ink-3); font-weight: 600; font-family: inherit; }
+
+  .leadcard { background: var(--card); border: 1.5px solid var(--line); border-radius: 18px; padding: 15px 17px; margin-bottom: 11px; position: relative; }
+  .leadcard.hot { border-color: var(--orange); box-shadow: 0 4px 16px -6px rgba(244,80,44,.25); }
+  .lc-top { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+  .lc-pill { font-size: 11px; font-weight: 700; background: var(--orange-soft); color: var(--orange-dark); border-radius: 999px; padding: 4px 10px; }
+  .lc-pill.gray { background: #F1EAE0; color: var(--ink-2); }
+  .lc-time { margin-left: auto; font-size: 11.5px; color: var(--ink-3); }
+  .lc-title { font-size: 16.5px; font-weight: 800; letter-spacing: -.2px; margin-bottom: 4px; }
+  .lc-desc { font-size: 13px; color: var(--ink-2); line-height: 1.5; margin-bottom: 8px; }
+  .lc-meta { font-size: 12.5px; color: var(--ink-2); display: flex; gap: 14px; }
+  .lc-meta b { color: var(--ink); }
+  .dot { width: 8px; height: 8px; background: var(--orange); border-radius: 50%; display: inline-block; margin-right: 6px; }
+
+  .photos { display: flex; gap: 8px; margin: 12px 0; }
+  .photos div { flex: 1; aspect-ratio: 1.15; border-radius: 12px; background: linear-gradient(150deg, #EFE5D6, #E0D2BE); display: flex; align-items: center; justify-content: center; color: #B3A48F; font-size: 18px; }
+
+  .jobbox { background: var(--card); border: 1.5px solid var(--line); border-radius: 16px; padding: 14px 16px; margin-bottom: 11px; }
+  .jobbox .jl { font-size: 10.5px; font-weight: 800; letter-spacing: .09em; color: var(--ink-3); margin-bottom: 7px; }
+  .jobbox p { font-size: 13.5px; line-height: 1.55; color: var(--ink); }
+  .jobfacts { display: flex; gap: 26px; border-top: 1px solid var(--line); margin-top: 11px; padding-top: 10px; }
+  .jobfacts .f small { display: block; font-size: 11px; color: var(--ink-3); font-weight: 600; }
+  .jobfacts .f b { font-size: 14.5px; font-weight: 800; }
+  .lockrow { display: flex; align-items: center; gap: 10px; background: #F3ECE1; border-radius: 12px; padding: 10px 13px; font-size: 12.5px; color: var(--ink-2); margin-top: 10px; }
+  .blur { filter: blur(4px); user-select: none; }
+
+  .slide-accept { position: relative; height: 58px; border-radius: 999px; background: var(--orange-soft); border: 1.5px solid var(--orange); margin-top: 18px; overflow: hidden; touch-action: none; user-select: none; }
+  .slide-fill { position: absolute; inset: 0; width: 58px; background: var(--orange); border-radius: 999px; transition: width .12s; }
+  .slide-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 13.5px; font-weight: 700; color: var(--orange-dark); padding-left: 30px; pointer-events: none; }
+  .slide-knob { position: absolute; top: 4px; left: 4px; width: 48px; height: 48px; border-radius: 50%; background: #fff; color: var(--orange); font-size: 20px; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(36,29,24,.18); cursor: grab; }
+  .sheetback { background: rgba(36,29,24,.5); border-radius: 20px; padding: 46px 14px 14px; margin-top: 8px; }
+  .sheet { background: var(--cream); border-radius: 20px; padding: 20px 20px 18px; }
+  .sheet h3 { font-size: 19px; font-weight: 800; letter-spacing: -.3px; margin-bottom: 12px; }
+  .srow { display: flex; justify-content: space-between; font-size: 13.5px; padding: 6px 0; color: var(--ink-2); }
+  .srow b { color: var(--ink); font-weight: 700; }
+  .captrack { height: 7px; background: #E2D8CA; border-radius: 4px; overflow: hidden; margin: 6px 0 2px; }
+  .capfill { height: 100%; width: 30%; background: var(--orange); border-radius: 4px; }
+
+  .center { display: flex; flex-direction: column; align-items: center; text-align: center; padding-top: 34px; }
+  .bigmark { width: 92px; height: 92px; border-radius: 50%; background: var(--orange); color: #fff; font-size: 40px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-bottom: 22px; }
+  .bigmark.green { background: var(--green); }
+  .kicker { font-size: 11px; font-weight: 800; letter-spacing: .14em; color: var(--orange); margin-bottom: 8px; }
+
+  .receipt { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: 16px; padding: 15px 17px; width: 100%; margin-top: 18px; text-align: left; }
+  .receipt .rt { font-size: 14.5px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+  .receipt .rs { font-size: 12.5px; color: #A99E93; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,.12); margin-bottom: 10px; }
+  .receipt .rrow { display: flex; justify-content: space-between; align-items: baseline; font-size: 12.5px; color: #A99E93; }
+  .receipt .rrow b { color: #fff; font-family: ui-monospace, monospace; font-size: 15px; }
+
+  .notifcard { background: var(--card); border: 1.5px solid var(--line); border-radius: 16px; padding: 14px 16px; display: flex; gap: 12px; margin-bottom: 11px; }
+  .notifcard .ni { width: 38px; height: 38px; border-radius: 11px; background: var(--amber-soft); color: var(--amber); display: flex; align-items: center; justify-content: center; font-size: 17px; flex: none; }
+  .notifcard .nt { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .notifcard .nb { font-size: 12.5px; color: var(--ink-2); line-height: 1.5; }
+
+  .reason { display: block; width: 100%; font: inherit; text-align: left; font-size: 14.5px; font-weight: 600; background: var(--card); border: 1.5px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-bottom: 9px; cursor: pointer; color: var(--ink); }
+  .reason:hover { border-color: var(--orange); }
+
+  .tabbar { position: absolute; bottom: 0; left: 0; right: 0; display: flex; border-top: 1px solid var(--line); background: var(--card); }
+  .tabbar div { flex: 1; text-align: center; font-size: 10.5px; font-weight: 700; color: var(--ink-3); padding: 11px 0 13px; }
+  .tabbar div.on { color: var(--orange); }
+  .tabbar div span { display: block; font-size: 17px; margin-bottom: 2px; }
+
+  .screenbadge { position: absolute; top: 8px; right: 14px; font-size: 9.5px; font-weight: 800; letter-spacing: .07em; padding: 4px 9px; border-radius: 999px; z-index: 5; }
+  .screenbadge.asis { background: #EDE6DB; color: var(--ink-2); }
+  .screenbadge.chg { background: var(--orange-soft); color: var(--orange-dark); }
+  .screenbadge.new { background: var(--green-soft); color: var(--green); }
+
+  .annotation { width: 700px; max-width: 100%; margin-top: 18px; font-size: 13px; color: var(--ink-2); line-height: 1.6; background: var(--card); border: 1.5px dashed var(--line); border-radius: 14px; padding: 13px 18px; }
+  .annotation b { color: var(--ink); font-weight: 700; }
+  .wordmark-lg { font-size: 21px; font-weight: 800; letter-spacing: -.3px; color: #fff; padding: 14px 0 6px; }
+  .wordmark-lg em { color: var(--orange); font-style: normal; }
+  .pinlogo { width: 54px; height: 54px; margin: 30px 0 26px; }
+  .flag-pill { display: inline-flex; align-items: center; gap: 7px; background: rgba(255,255,255,.1); color: #E8DFD4; font-size: 11px; font-weight: 800; letter-spacing: .1em; border-radius: 999px; padding: 6px 13px; margin-bottom: 14px; }
+  .flag-pill i { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); }
+</style>
+</head>
+<body>
+
+<div class="proto-title">FingerPin — proposed new Pro onboarding flow</div>
+<div class="proto-sub">Prototype accompanying the onboarding case · use ← → keys or the pills to move through the flow · badges show what changes vs the current product</div>
+<nav class="flow-nav" id="nav"></nav>
+<div class="legend">Badges: unchanged from current flow · <b class="c">CHANGED</b> · <b class="n">NEW</b></div>
+
+<div class="stage">
+<button class="arrowbtn" onclick="step(-1)">←</button>
+<div class="phone">
+
+<!-- 01 WELCOME (as-is) -->
+<section class="screen dark" id="s01">
+  <span class="screenbadge asis">AS-IS</span>
+  <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+  <div class="wordmark-lg">Finger<em>Pin</em></div>
+  <svg class="pinlogo" viewBox="0 0 48 48" fill="none"><path d="M24 4C15 4 8 11 8 20c0 11 16 24 16 24s16-13 16-24c0-9-7-16-16-16z" fill="#F4502C"/><path d="M18 21c2-1.5 4-2 6-2s4 .5 6 2M19.5 16.5c1.5-1 3-1.4 4.5-1.4s3 .4 4.5 1.4" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
+  <div class="flag-pill"><i></i>FOR PROS</div>
+  <h2 style="font-size:32px;">Real jobs from homeowners nearby.</h2>
+  <p class="lede">Get matched with homeowners who need your trade. You only pay for the leads you want — no subscriptions, no commissions.</p>
+  <div class="benefit"><div class="bi" style="background:rgba(255,255,255,.08);color:#E8DFD4;">✓</div><div><div class="bt" style="color:#fff;">Qualified leads, not cold calls</div><div class="bd" style="color:#A99E93;">Homeowners describe the job before you ever talk.</div></div></div>
+  <div class="benefit"><div class="bi" style="background:rgba(255,255,255,.08);color:#E8DFD4;">✓</div><div><div class="bt" style="color:#fff;">You set the budget</div><div class="bd" style="color:#A99E93;">$10 per lead, capped at whatever you choose each month.</div></div></div>
+  <button class="cta" onclick="go('s02')">Get started →</button>
+  <button class="cta ghost">Already a pro? Log in</button>
+</section>
+
+<!-- 02 PHONE (as-is) -->
+<section class="screen" id="s02">
+  <span class="screenbadge asis">AS-IS</span>
+  <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+  <div class="topnav"><div class="backbtn">←</div><div class="steps"><i class="done"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+  <div class="stepicon">📞</div>
+  <h2>What's your phone number?</h2>
+  <p class="lede">We'll text you a 6-digit code to confirm it's really you. Homeowners reach you here once you accept a lead.</p>
+  <div style="display:flex; gap:9px;">
+    <div class="field" style="flex:none;">🇺🇸 +1</div>
+    <div class="field" style="flex:1;">(415) 555-0182</div>
+  </div>
+  <p class="hint">🔒 We never share your number with homeowners until you accept their lead.</p>
+  <button class="cta" onclick="go('s03')">Send code →</button>
+</section>
+
+<!-- 03 SMS (as-is) -->
+<section class="screen" id="s03">
+  <span class="screenbadge asis">AS-IS</span>
+  <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+  <div class="topnav"><div class="backbtn">←</div><div class="steps"><i class="done"></i><i class="done"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+  <div class="stepicon">💬</div>
+  <h2>Enter the code</h2>
+  <p class="lede">We sent a 6-digit code to (415) 555-0182. It expires in 10 minutes.</p>
+  <div class="otp"><span>4</span><span>1</span><span>8</span><span>2</span><span>0</span><span>7</span></div>
+  <p class="hint">Resend code in <b style="font-family:ui-monospace,monospace;">0:25</b></p>
+  <button class="cta" onclick="go('s04')">Verify →</button>
+</section>
+
+<!-- 04 EMAIL (as-is) -->
+<section class="screen" id="s04">
+  <span class="screenbadge asis">AS-IS</span>
+  <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+  <div class="topnav"><div class="backbtn">←</div><div class="steps"><i class="done"></i><i class="done"></i><i class="done"></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+  <div class="stepicon">✉️</div>
+  <h2>What's your email?</h2>
+  <p class="lede">This is where we'll send lead receipts and your monthly statement. We'll send a link to confirm it.</p>
+  <div class="field ok">marcus@bellhandyman.com <span class="okmark">✓</span></div>
+  <p class="hint">Use a business email if you have one — it helps homeowners trust your profile.</p>
+  <button class="cta" onclick="go('s05')">Continue →</button>
+</section>
+
+<!-- 05 CHECK EMAIL (as-is) -->
+<section class="screen" id="s05">
+  <span class="screenbadge asis">AS-IS</span>
+  <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+  <div class="topnav"><div class="backbtn">←</div><div class="steps"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i></i><i></i><i></i><i></i><i></i></div></div>
+  <div class="stepicon">📬</div>
+  <h2>Check your email</h2>
+  <p class="lede">We sent a verification link to <b>marcus@bellhandyman.com</b>. Open it and tap the link to confirm your address, then come back here.</p>
+  <button class="cta" onclick="go('s06')">✉️ Open email app</button>
+  <button class="cta ghost">Didn't get it? Resend link</button>
+</section>
+
+<!-- 06 EMAIL CONFIRMED (as-is) -->
+<section class="screen" id="s06">
+  <span class="screenbadge asis">AS-IS</span>
+  <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+  <div class="center" style="padding-top:110px;">
+    <div class="bigmark green">✓</div>
+    <h2>Email confirmed</h2>
+    <p class="lede">marcus@bellhandyman.com</p>
+    <button class="cta" style="width:auto; padding:15px 34px;" onclick="go('s07')">Continue setup →</button>
+  </div>
+</section>
+
+<!-- 07 LINKS (as-is) -->
+<section class="screen" id="s07">
+  <span class="screenbadge asis">AS-IS</span>
+  <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+  <div class="topnav"><div class="backbtn">←</div><div class="steps"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i></i><i></i><i></i><i></i></div></div>
+  <div class="stepicon">🔗</div>
+  <h2>Share your links</h2>
+  <p class="lede">Drop your website and anything else that shows your work. FingerPin reads them to write your profile — so you don't have to.</p>
+  <div class="linkfield"><span class="lf-tag">WEBSITE</span><div class="lf-val">bellhandyman.com</div></div>
+  <div class="linkfield"><span class="lf-tag">YELP</span><div class="lf-val">yelp.com/biz/bell-co-home-repair</div></div>
+  <div class="linkfield"><span class="lf-tag">INSTAGRAM</span><div class="lf-val">@bellhomerepair</div></div>
+  <div class="chips"><div class="chip">+ Google Business</div><div class="chip">+ Facebook</div></div>
+  <button class="cta" onclick="go('s08')">✦ Build my profile</button>
+</section>
+
+<!-- 08 BUILDING (as-is) -->
+<section class="screen dark" id="s08">
+  <span class="screenbadge asis">AS-IS</span>
+  <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+  <div style="padding-top:120px;">
+    <h2 style="font-size:24px;">Building your profile</h2>
+    <p class="lede">This usually takes a few seconds.</p>
+    <div class="buildrow"><div class="bc">✓</div>Reading bellhandyman.com</div>
+    <div class="buildrow"><div class="bc">✓</div>Scanning your reviews &amp; ratings</div>
+    <div class="buildrow"><div class="bc">✓</div>Detecting your specialties</div>
+    <div class="buildrow"><div class="bc">✓</div>Writing your profile</div>
+    <button class="cta" onclick="go('s09')">Continue →</button>
+  </div>
+</section>
+
+<!-- 09 PROFILE (as-is) -->
+<section class="screen" id="s09">
+  <span class="screenbadge asis">AS-IS</span>
+  <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+  <div class="topnav"><div class="backbtn">←</div><div class="steps"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i></i><i></i><i></i></div></div>
+  <h2>Here's your profile</h2>
+  <p class="lede" style="margin-bottom:14px;">This is what homeowners see when we match you. Tap any field to tweak it.</p>
+  <div class="profcard">
+    <div class="avatar">B&amp;</div>
+    <div>
+      <div class="stars">★★★★★ <b style="color:var(--ink);">4.9</b> <span style="color:var(--ink-3);font-size:12px;">· 213 reviews</span></div>
+      <div style="font-size:12.5px;color:var(--ink-2);">📍 Within 25 mi of San Francisco</div>
+    </div>
+  </div>
+  <div class="flabel">Business name</div>
+  <div class="ftext" style="font-weight:700;">Bell &amp; Co. Home Repair</div>
+  <div class="flabel">About</div>
+  <div class="ftext">Family-run handyman shop serving the Bay Area for 12 years. We mount, patch, assemble, and fix — licensed, insured, and obsessive about a clean job site.</div>
+  <div class="flabel">Specialties</div>
+  <div class="chips" style="margin-top:2px;"><div class="chip on">✓ Handyman</div><div class="chip on">✓ Carpentry</div><div class="chip">+ Plumbing</div><div class="chip">+ Painting</div><div class="chip">+ Flooring</div></div>
+  <button class="cta" onclick="go('s10')">Looks good — continue →</button>
+</section>
+
+<!-- 10 BUDGET + COST (CHANGED) -->
+<section class="screen" id="s10">
+  <span class="screenbadge chg">CHANGED</span>
+  <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+  <div class="topnav"><div class="backbtn">←</div><div class="steps"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i></i><i></i></div></div>
+  <h2>Set your monthly budget</h2>
+  <p class="lede" style="margin-bottom:12px;">The most you'll spend per month. Change it anytime.</p>
+  <div class="costcard">
+    <div class="cc-cap-label">MONTHLY BUDGET CAP</div>
+    <div class="cc-cap">$<span id="capNum">100</span><small>/mo</small></div>
+    <div class="cc-chip">💬 Up to ~<span id="leadNum">10</span> leads at $10 each</div>
+    <div class="costrows">
+      <div class="r"><span>Per lead you accept</span><b>$10 flat</b></div>
+      <div class="r"><span>Leads you decline or ignore</span><b>Free</b></div>
+      <div class="r"><span>Charged today</span><b>$0</b></div>
+    </div>
+  </div>
+  <div class="slider-wrap"><input type="range" id="capSlider" min="10" max="1000" step="10" value="100" aria-label="Monthly budget cap"></div>
+  <div class="minmax"><span>$10</span><span>$1000/mo</span></div>
+  <button class="cta" onclick="go('s11')">Continue →</button>
+</section>
+
+<!-- 11 AGREEMENT (NEW POSITION) -->
+<section class="screen" id="s11">
+  <span class="screenbadge new">NEW POSITION</span>
+  <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+  <div class="topnav"><div class="backbtn">←</div><div class="steps"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i></i></div></div>
+  <div class="stepicon">🛡️</div>
+  <h2>Your Pro terms</h2>
+  <p class="lede" style="margin-bottom:8px;">Nothing is charged today. You only ever pay when you choose to accept a lead.</p>
+  <div class="agree-item"><span class="ck">✓</span><div><div class="at">$10 per lead you accept</div><div class="ad">Never charged for leads you decline or let expire.</div></div></div>
+  <div class="agree-item"><span class="ck">✓</span><div><div class="at">Capped at your $<span id="capNum2">100</span>/mo budget</div><div class="ad">The cap you just set. Change it anytime in your account.</div></div></div>
+  <div class="agree-item"><span class="ck">✓</span><div><div class="at">Independent contractor</div><div class="ad">FingerPin is a lead service, not a party to your contracts.</div></div></div>
+  <div class="agree-item"><span class="ck">✓</span><div><div class="at">Honest representation</div><div class="ad">You're licensed and insured where required; your profile is accurate.</div></div></div>
+  <details class="legal"><summary>Read the full contractor agreement (v4) ⌄</summary><div class="lb"><b>1. Per-lead fee.</b> You agree to pay the per-lead rate shown at signup for each lead you accept, charged to your payment method at acceptance.<br><br><b>2. Monthly cap.</b> FingerPin will not charge more than your configured monthly maximum.<br><br><b>3. Independent contractor.</b> You operate as an independent business.<br><br><b>4. Honest representation.</b> You hold all required licenses and insurance.<br><br><b>5. Declined leads.</b> Leads you decline or allow to expire are never billed.<br><br><b>6. Fair conduct.</b> You'll respond to homeowners promptly and honestly.</div></details>
+  <button class="cta" onclick="go('s12')">Agree &amp; continue →</button>
+  <p class="hint" style="text-align:center;">By continuing you agree to the FingerPin Pro Contractor Agreement.</p>
+</section>
+
+<!-- 12 PAYMENT (as-is) -->
+<section class="screen" id="s12">
+  <span class="screenbadge asis">AS-IS</span>
+  <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+  <div class="topnav"><div class="backbtn">←</div><div class="steps"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i></div></div>
+  <div class="stepicon">💳</div>
+  <h2>Add a payment method</h2>
+  <p class="lede">We keep this on file to charge $10 each time you accept a lead. Nothing is charged today.</p>
+  <div class="field"><div style="flex:1;"><span class="fl">CARD NUMBER</span>4242 4242 4242 4242</div><span style="color:var(--ink-3);font-size:13px;font-weight:700;">VISA</span></div>
+  <div style="display:flex; gap:9px;">
+    <div class="field" style="flex:1;"><div><span class="fl">EXPIRY</span>08/27</div></div>
+    <div class="field" style="flex:1;"><div><span class="fl">CVC</span>123</div></div>
+  </div>
+  <div class="field"><div><span class="fl">BILLING ZIP</span>94110</div></div>
+  <p class="hint">🔒 Encrypted and stored securely. <b>You're not charged until you accept your first lead.</b></p>
+  <button class="cta dark" onclick="resetLead();go('s14')">🔒 Save card &amp; finish setup</button>
+</section>
+
+<!-- 14 LEADS HOME (as-is) -->
+<section class="screen" id="s14" style="padding-bottom:70px;">
+  <span class="screenbadge asis">AS-IS</span>
+  <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+  <div class="appbar-app"><h3>Leads</h3><div class="capmini">$0 <small>/ $<span id="capNum3">100</span></small><span class="sub">0 leads this month</span></div></div>
+  <p style="font-size:13px; font-weight:700; margin-bottom:10px;" id="leadCount"><span class="dot"></span>1 new lead near you</p>
+  <div class="leadcard hot" onclick="go('s15')" style="cursor:pointer;" id="leadCard">
+    <div class="lc-top"><span class="lc-pill">TV Mounting</span><span class="lc-pill gray">Shelving</span><span class="lc-time">8 min ago</span></div>
+    <div class="lc-title">Mount a 65" TV + hang 3 floating shelves</div>
+    <div class="lc-desc">Living room, drywall with studs. I already have the TV mount and shelves — just need everything…</div>
+    <div class="lc-meta"><span>📍 Noe Valley, SF</span><span><b>$150–$300</b></span></div>
+  </div>
+  <p class="hint" style="text-align:center; margin-top:14px;" id="leadHint">That was fast. Tap the lead to see the job.</p>
+  <div class="tabbar"><div class="on"><span>💬</span>Leads</div><div><span>✉️</span>Messages</div><div><span>👤</span>Account</div></div>
+</section>
+
+<!-- 15 LEAD DETAILS (CHANGED: no legal wall ahead) -->
+<section class="screen" id="s15">
+  <span class="screenbadge chg">CHANGED</span>
+  <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+  <div class="topnav"><div class="backbtn" onclick="go('s14')" style="cursor:pointer;">←</div><b style="font-size:16px;">Lead details</b></div>
+  <div class="lc-top" style="margin-bottom:6px;"><span class="lc-pill">TV Mounting</span><span class="lc-pill gray">Shelving</span></div>
+  <h2 style="font-size:21px;">Mount a 65" TV + hang 3 floating shelves</h2>
+  <p class="hint" style="margin-bottom:4px;">📍 Noe Valley, SF · 🕐 8 min ago</p>
+  <div class="photos"><div>📷</div><div>📷</div><div>📷</div></div>
+  <div class="jobbox">
+    <div class="jl">THE JOB</div>
+    <p>Living room, drywall with studs. I already have the TV mount and shelves — just need everything installed level with the cords hidden if possible. Hoping to get it done this week.</p>
+    <div class="jobfacts"><div class="f"><small>Budget</small><b>$150–$300</b></div><div class="f"><small>Timing</small><b>This week</b></div></div>
+  </div>
+  <div class="jobbox">
+    <div class="jl">HOMEOWNER</div>
+    <div style="display:flex; align-items:center; gap:11px;">
+      <div class="avatar" style="background:var(--green-soft); color:var(--green);">PN</div>
+      <div><b style="font-size:15px;">Priya</b><div class="blur" style="font-size:13px; color:var(--ink-2);">415-555-0143 · priya@gmail.com</div></div>
+    </div>
+    <div class="lockrow">🔒 Accept to unlock contact details — $10, this lead only.</div>
+  </div>
+  <div class="slide-accept" id="slideTrack">
+    <div class="slide-fill" id="slideFill"></div>
+    <div class="slide-label" id="slideLabel">Slide to accept · $10 · VISA ···· 4242</div>
+    <div class="slide-knob" id="slideKnob">→</div>
+  </div>
+  <button class="cta ghost" style="width:100%;" onclick="passLead()">Pass — free</button>
+  <p class="hint" style="text-align:center;">You're charged only when you slide. Passing is always free.</p>
+</section>
+
+<!-- 17 UNLOCKED (as-is) -->
+<section class="screen dark" id="s17">
+  <span class="screenbadge asis">AS-IS</span>
+  <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+  <div class="center" style="padding-top:40px;">
+    <div class="bigmark">✓</div>
+    <div class="kicker">YOUR FIRST LEAD</div>
+    <h2 style="font-size:30px;">It's all yours.</h2>
+    <p class="lede">You've unlocked Priya Nadkarni's contact details. Reach out while it's fresh — fast replies win the job.</p>
+    <div class="receipt">
+      <div class="rt">Mount a 65" TV + hang 3 floating shelves</div>
+      <div class="rs">Noe Valley, SF · Priya Nadkarni · 415-555-0143</div>
+      <div class="rrow"><span>VISA ···· 4242</span><span>Charged today&nbsp;&nbsp;<b>$10.00</b></span></div>
+    </div>
+    <button class="cta" onclick="go('s18')">💬 Message Priya</button>
+    <button class="cta ghost" onclick="go('s18')">Go to my leads</button>
+  </div>
+</section>
+
+<!-- 18 WORKING APP (as-is) -->
+<section class="screen" id="s18" style="padding-bottom:70px;">
+  <span class="screenbadge asis">AS-IS</span>
+  <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+  <div class="appbar-app"><h3>Leads</h3><div class="capmini">$10 <small>/ $<span id="capNum5">100</span></small><span class="sub">1 lead this month</span></div></div>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><b style="font-size:13.5px;">All leads</b><span style="font-size:12.5px; color:var(--orange); font-weight:700;"><span class="dot"></span>2 unread</span></div>
+  <div class="leadcard hot"><div class="lc-top"><span class="lc-pill">Plumbing</span><span class="lc-time">32 min ago</span></div><div class="lc-title" style="font-size:15px;">Fix a slow-draining kitchen sink</div><div class="lc-meta"><span>📍 Mission, SF</span><span><b>$80–$150</b></span></div></div>
+  <div class="leadcard hot"><div class="lc-top"><span class="lc-pill">Drywall</span><span class="lc-time">1 hr ago</span></div><div class="lc-title" style="font-size:15px;">Patch &amp; repaint two drywall holes</div><div class="lc-meta"><span>📍 Bernal Heights</span><span><b>$120–$220</b></span></div></div>
+  <div class="leadcard" style="opacity:.75;"><div class="lc-top"><span class="lc-pill gray">TV Mounting</span><span class="lc-time">Accepted ✓</span></div><div class="lc-title" style="font-size:15px;">Mount a 65" TV + hang 3 floating shelves</div><div class="lc-meta"><span>📍 Noe Valley, SF</span><span><b>$150–$300</b></span></div></div>
+  <p class="hint" style="text-align:center; margin-top:12px;">Accepting from here is one tap — the terms were handled at setup.</p>
+  <div class="tabbar"><div class="on"><span>💬</span>Leads</div><div><span>✉️</span>Messages</div><div><span>👤</span>Account</div></div>
+</section>
+
+</div>
+<button class="arrowbtn" onclick="step(1)">→</button>
+</div>
+
+<div class="annotation" id="annotation"></div>
+
+<script>
+  const screens = [
+    ["s01","01 Welcome","", "<b>Welcome (unchanged).</b> Value prop already leads with 'you only pay for leads you want' — the redesign makes the rest of the flow keep that promise."],
+    ["s02","02 Phone","", "<b>Phone (unchanged, flagged).</b> Double verification (phone AND email) before any value is a suspected leak, but setup steps emit no events today, so we can't measure it. Ship instrumentation first; don't redesign blind. Out of scope for this build."],
+    ["s03","03 SMS code","", "<b>SMS verification (unchanged).</b> Same note as phone — instrument, then decide."],
+    ["s04","04 Email","", "<b>Email (unchanged, flagged).</b> Second identity check in a row. Candidate for deferral (verify email async, or at first receipt) pending funnel data."],
+    ["s05","05 Check email","", "<b>Email link (unchanged).</b> App-exit moment — classic drop-off risk. Another reason step-level events matter."],
+    ["s06","06 Confirmed","", "<b>Email confirmed (unchanged).</b> Return point after the app exit."],
+    ["s07","07 Links","", "<b>Links (unchanged).</b> Low-friction, high-value step — powers the auto-built profile."],
+    ["s08","08 Building","", "<b>Profile build (unchanged).</b> Moment of delight; no changes."],
+    ["s09","09 Profile","", "<b>Profile review (unchanged).</b> One note for Matching: this shows external ratings (Yelp 4.9), yet the match algorithm treats this Pro as unrated — the cold-start problem. Escalated separately."],
+    ["s10","10 Budget","chg", "<b>Budget — CHANGED.</b> The current screen already says $10/lead; the redesign makes cost the centerpiece: cap, per-lead price, 'declining is free', and 'charged today: $0' in one card. Drag the slider — everything downstream updates. This is the disclosure that makes later consent informed and kills the surprise (Gary: 'just warn me')."],
+    ["s11","11 Pro terms","new", "<b>Agreement — NEW POSITION.</b> The v4 contractor agreement moves from first-match (where it walls off the lead and 35% of receivers stall) to setup, immediately after cost disclosure. Plain-language summary, full text behind a disclosure. Pre-Q4 data: 90–96% completed this step at setup — it doesn't leak. Needs legal signoff; fallback is checkbox-at-gate."],
+    ["s12","12 Payment","", "<b>Payment (unchanged).</b> Existing copy already says 'nothing is charged today' and 'not charged until you accept your first lead' — it works as-is after the agreement step. Card entry stays in setup; it's the commitment filter that keeps post-gate quality."],
+    ["s14","13 First match","", "<b>Leads home (unchanged).</b> Setup ends here; first lead lands 8 minutes in. The difference is what happens next: no legal wall. (Note: the 'profile live' milestone event still fires at end of setup — the metric fix doesn't need its own screen.)"],
+    ["s15","14 Lead details","chg", "<b>Lead details — CHANGED, and this is the gate now.</b> Full job, photos, budget, timing visible before any money decision; only contact info is locked. The current flow's agreement wall after 'Accept' is deleted (terms moved to setup). Its charge-confirmation role is preserved in the control itself: slide-to-accept with price and card on the track — deliberate enough to prevent accidental charges, no extra screen. Try dragging it."],
+    ["s17","15 Unlocked","", "<b>Unlocked (unchanged).</b> Contact details + receipt + speed nudge ('fast replies win the job' — matches interview evidence that speed wins)."],
+    ["s18","16 Working app","", "<b>Steady state (unchanged).</b> Subsequent accepts are the same slide from anywhere. Leads never pile up behind an unsigned agreement."]
+  ];
+  const nav = document.getElementById("nav");
+  const annotation = document.getElementById("annotation");
+  let current = 0;
+  screens.forEach(([id,label,tag],ix) => {
+    const b = document.createElement("button");
+    b.id = "nav-"+id;
+    b.innerHTML = label + (tag==="new" ? ' <span class="tag new">NEW</span>' : tag==="chg" ? ' <span class="tag chg">CHG</span>' : '');
+    b.onclick = () => go(id);
+    nav.appendChild(b);
+  });
+  function go(id) {
+    current = screens.findIndex(s => s[0]===id);
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    document.querySelectorAll(".flow-nav button").forEach(b => b.classList.remove("active"));
+    document.getElementById("nav-"+id).classList.add("active");
+    annotation.innerHTML = screens[current][3];
+  }
+  function step(d) { go(screens[Math.min(screens.length-1, Math.max(0, current+d))][0]); }
+  document.addEventListener("keydown", e => {
+    if (e.key==="ArrowRight") step(1);
+    if (e.key==="ArrowLeft") step(-1);
+  });
+  const slider = document.getElementById("capSlider");
+  slider.addEventListener("input", () => {
+    const cap = +slider.value;
+    document.getElementById("capNum").textContent = cap;
+    document.getElementById("leadNum").textContent = Math.floor(cap/10);
+    ["capNum2","capNum3","capNum5"].forEach(i => document.getElementById(i).textContent = cap);
+  });
+
+  function passLead() {
+    document.getElementById("leadCard").style.display = "none";
+    document.getElementById("leadCount").innerHTML = "No new leads right now";
+    document.getElementById("leadHint").innerHTML = "You passed on the TV mounting job — no charge. We'll text you when the next match lands.";
+    go("s14");
+  }
+  function resetLead() {
+    document.getElementById("leadCard").style.display = "";
+    document.getElementById("leadCount").innerHTML = '<span class="dot"></span>1 new lead near you';
+    document.getElementById("leadHint").innerHTML = "That was fast. Tap the lead to see the job.";
+  }
+
+  const knob = document.getElementById("slideKnob");
+  const track = document.getElementById("slideTrack");
+  const fill = document.getElementById("slideFill");
+  const slabel = document.getElementById("slideLabel");
+  let dragging = false;
+  function setKnob(x, max) {
+    knob.style.left = x + "px";
+    fill.style.width = (x + 52) + "px";
+    slabel.style.opacity = 1 - x/max;
+  }
+  knob.addEventListener("pointerdown", e => { dragging = true; knob.setPointerCapture(e.pointerId); });
+  knob.addEventListener("pointermove", e => {
+    if (!dragging) return;
+    const r = track.getBoundingClientRect();
+    const max = r.width - 56;
+    const x = Math.max(4, Math.min(max, e.clientX - r.left - 24));
+    setKnob(x, max);
+    if (x >= max - 2) {
+      dragging = false;
+      slabel.style.opacity = 0;
+      setTimeout(() => { go("s17"); setKnob(4, max); slabel.style.opacity = 1; }, 180);
+    }
+  });
+  knob.addEventListener("pointerup", () => {
+    if (!dragging) return;
+    dragging = false;
+    const r = track.getBoundingClientRect();
+    setKnob(4, r.width - 56); slabel.style.opacity = 1;
+  });
+  go("s01");
+</script>
+</body>
+</html>
